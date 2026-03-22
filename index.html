@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Clinic Management System</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons for Modern Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar no-print">
+            <div class="sidebar-header">
+                <i class="ph ph-heartbeat icon-logo"></i>
+                <h2>MediCore</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-target="dashboard">
+                    <i class="ph ph-squares-four"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-target="prescription">
+                    <i class="ph ph-prescription"></i> New Prescription
+                </a>
+                <a href="#" class="nav-item" data-target="search">
+                    <i class="ph ph-magnifying-glass"></i> Search
+                </a>
+                <a href="#" class="nav-item" data-target="patient-list">
+                    <i class="ph ph-list-dashes"></i> Patient List
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="topbar no-print">
+                <div class="topbar-search">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" placeholder="Global search..." disabled>
+                </div>
+                <div class="topbar-profile">
+                    <img src="https://ui-avatars.com/api/?name=Doctor&background=E0F2FE&color=0284C7" alt="Doctor"
+                        class="avatar">
+                    <span>Dr. Admin</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="page-section active no-print">
+                    <div class="section-header">
+                        <h1>Dashboard Overview</h1>
+                        <p>Welcome back, here is what's happening today.</p>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-blue"><i class="ph ph-users"></i></div>
+                            <div class="stat-info">
+                                <h3>Today's Patients</h3>
+                                <p id="stat-daily">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-green"><i class="ph ph-calendar-check"></i></div>
+                            <div class="stat-info">
+                                <h3>Weekly Patients</h3>
+                                <p id="stat-weekly">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-purple"><i class="ph ph-calendar-blank"></i></div>
+                            <div class="stat-info">
+                                <h3>Monthly Patients</h3>
+                                <p id="stat-monthly">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-orange"><i class="ph ph-coins"></i></div>
+                            <div class="stat-info">
+                                <h3>Est. Collection</h3>
+                                <p id="stat-collection">₹0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Grid -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Patient Visits (Recent)</h3>
+                            <canvas id="visitsChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- New Prescription Section -->
+                <section id="prescription" class="page-section hidden">
+                    <div class="section-header no-print">
+                        <h1>Create Prescription</h1>
+                        <p>Fill in patient details to generate and save a prescription.</p>
+                    </div>
+
+                    <div class="prescription-wrapper">
+                        <!-- Input Form -->
+                        <div class="prescription-form-container no-print">
+                            <form id="rx-form" class="modern-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Patient Name *</label>
+                                        <input type="text" id="p-name" required placeholder="Ex. John Doe">
+                                    </div>
+                                    <div class="form-group mini">
+                                        <label>Age *</label>
+                                        <input type="number" id="p-age" required placeholder="Ex. 30">
+                                    </div>
+                                    <div class="form-group mini">
+                                        <label>Gender *</label>
+                                        <select id="p-gender" required>
+                                            <option value="">Select</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group mini">
+                                        <label>Fee (₹) *</label>
+                                        <input type="number" id="p-fee" required value="500">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Patient ID</label>
+                                        <input type="text" id="p-pid" readonly placeholder="Auto-generated">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Phone Number *</label>
+                                        <input type="tel" id="p-phone" required placeholder="Ex. 9876543210" pattern="[0-9]{10}">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Address *</label>
+                                    <textarea id="p-address" required rows="2"
+                                        placeholder="Ex. 123 Main St..."></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Symptoms (Optional)</label>
+                                    <textarea id="p-symptoms" rows="3"
+                                        placeholder="Ex. Fever, cold, headache..."></textarea>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="btn-previewRx">
+                                        <i class="ph ph-eye"></i> Preview Prescription
+                                    </button>
+                                </div>
+                            </form>
+                            <div id="status-message" class="status-message" style="margin-top: 1rem;"></div>
+                        </div>
+
+                        <!-- Printable Template with Background Image -->
+                        <div class="printable-prescription" id="print-template" style="display:none;">
+                            <div class="action-buttons no-print" id="preview-actions"
+                                style="position: absolute; bottom: 20px; left: 0; right: 0; text-align:center; z-index: 10;">
+                                <button class="btn btn-secondary" onclick="editPreview()">
+                                    <i class="ph ph-pencil"></i> Edit Details
+                                </button>
+                                <button class="btn btn-primary" id="btn-confirm-rx" onclick="confirmAndSaveRx()" style="margin-left: 10px;">
+                                    <i class="ph ph-floppy-disk"></i> Confirm & Print
+                                </button>
+                            </div>
+                            
+                            <div class="action-buttons no-print" id="view-actions"
+                                style="display:none; position: absolute; bottom: 20px; left: 0; right: 0; text-align:center; z-index: 10;">
+                                <button class="btn btn-primary" onclick="printCurrentSlip()">
+                                    <i class="ph ph-printer"></i> Print Prescription
+                                </button>
+                                <button class="btn btn-secondary" onclick="resetForm()" style="margin-left: 10px;">
+                                    <i class="ph ph-plus"></i> New Prescription
+                                </button>
+                            </div>
+                            <img src="Assets/Pre.jpeg" class="print-bg" alt="Prescription Background">
+                            <div class="print-overlay">
+                                <!-- The text fields absolutely positioned to match the dotted lines on Pre.jpeg -->
+                                <div class="print-field" id="print-name"></div>
+                                <div class="print-field" id="print-age"></div>
+                                <div class="print-field" id="print-gender"></div>
+                                <div class="print-field" id="print-date"></div>
+
+                                <!-- Content area for Rx and symptoms -->
+                                <div class="print-content">
+                                    <div class="print-meta">
+                                        <span><strong>Phone:</strong> <span id="out-phone"></span></span> &nbsp;|&nbsp;
+                                        <span><strong>PID:</strong> <span id="out-pid"></span></span> &nbsp;|&nbsp;
+                                        <span><strong>Appt:</strong> <span id="out-id"></span></span> &nbsp;|&nbsp;
+                                        <span><strong>Visit:</strong> #<span id="out-visit">1</span></span>
+                                    </div>
+                                    <div class="print-symptoms">
+                                        <strong>Symptoms/Notes:</strong> <span id="out-symptoms"></span>
+                                    </div>
+                                    <div class="print-rx">
+                                        <div style="min-height:300px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Search Section -->
+                <section id="search" class="page-section hidden no-print">
+                    <div class="section-header">
+                        <h1>Search Records</h1>
+                        <p>Search via Phone, Name, or Appointment ID.</p>
+                    </div>
+
+                    <div class="search-container">
+                        <div class="search-box modern-form">
+                            <input type="text" id="search-input" placeholder="Enter keywords...">
+                            <button class="btn btn-primary" id="btn-search">Search</button>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="modern-table" id="search-table">
+                                <thead>
+                                    <tr>
+                                        <th>Appt ID</th>
+                                        <th>Patient ID</th>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Visits</th>
+                                        <th>Date</th>
+                                        <th>Valid Till</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" style="text-align:center;color:#64748b">Enter search query to begin.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Patient List Section -->
+                <section id="patient-list" class="page-section hidden no-print">
+                    <div class="section-header">
+                        <h1>Patient List</h1>
+                        <p>View and print patient slips.</p>
+                    </div>
+
+                    <div class="list-container"
+                        style="background: white; padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--border-color);">
+                        <div class="filter-tabs" style="display:flex; gap:10px; margin-bottom: 1.5rem;">
+                            <button class="btn btn-primary filter-btn" data-filter="daily">Daily</button>
+                            <button class="btn btn-secondary filter-btn" data-filter="weekly">Weekly</button>
+                            <button class="btn btn-secondary filter-btn" data-filter="monthly">Monthly</button>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="modern-table" id="patients-table">
+                                <thead>
+                                    <tr>
+                                        <th>Appt ID</th>
+                                        <th>Patient ID</th>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Visits</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" style="text-align:center;color:#64748b">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
