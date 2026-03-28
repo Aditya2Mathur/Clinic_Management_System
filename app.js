@@ -417,7 +417,10 @@ function renderPatientList(filter) {
             <td>${rTime}</td>
             <td>
                 <button class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="printSlip('${rId}')">
-                    <i class="ph ph-printer"></i> Print Slip
+                    <i class="ph ph-printer"></i> Print
+                </button>
+                <button class="btn" style="background:#25D366; color:white; padding: 0.4rem 0.8rem; font-size: 0.85rem; margin-left: 5px; border:none;" onclick="sendWhatsAppFromList('${rId}')">
+                    <i class="ph ph-whatsapp-logo"></i> WhatsApp
                 </button>
             </td>
         `;
@@ -486,4 +489,30 @@ function printCurrentSlip() {
     setTimeout(() => {
         document.title = originalTitle;
     }, 1000);
+}
+
+/* Communication Logic */
+function triggerWhatsApp(phoneRaw, name, apptId, dateStr) {
+    if(!phoneRaw) return;
+    let phone = phoneRaw.toString().replace(/\D/g, '');
+    if(phone.length === 10) phone = '91' + phone;
+    
+    const message = `Hello *${name}*,\n\nYour prescription details from the clinic:\n*Appointment ID:* ${apptId}\n*Date:* ${dateStr}\n\nThank you for visiting! We wish you a speedy recovery.`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+}
+
+function sendWhatsApp() {
+    const phone = document.getElementById('out-phone').textContent;
+    const name = document.getElementById('print-name').textContent;
+    const apptId = document.getElementById('out-id').textContent;
+    const dateStr = document.getElementById('print-date').textContent;
+    triggerWhatsApp(phone, name, apptId, dateStr);
+}
+
+function sendWhatsAppFromList(apptId) {
+    const r = globalRecords.find(x => (x.appointmentId || x['Appointment ID']) === apptId);
+    if(!r) return;
+    const rDate = r['Timestamp'] ? new Date(r['Timestamp']).toLocaleDateString('en-GB') : '';
+    triggerWhatsApp(r.phone || r['Phone'], r.name || r['Name'], apptId, rDate);
 }
