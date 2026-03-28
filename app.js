@@ -157,6 +157,7 @@ document.getElementById('p-phone').addEventListener('blur', (e) => {
             if(!document.getElementById('p-age').value) document.getElementById('p-age').value = latest.age || latest['Age'] || '';
             if(!document.getElementById('p-gender').value) document.getElementById('p-gender').value = latest.gender || latest['Gender'] || '';
             if(!document.getElementById('p-address').value) document.getElementById('p-address').value = latest.address || latest['Address'] || '';
+            if(!document.getElementById('p-weight').value) document.getElementById('p-weight').value = latest.weight || latest['Weight'] || '';
 
             const validStr = latest.validTill || latest['Valid Till'];
             let isFree = false;
@@ -219,6 +220,7 @@ document.getElementById('rx-form').addEventListener('submit', async (e) => {
         gender: document.getElementById('p-gender').value,
         phone: phoneVal,
         address: document.getElementById('p-address').value,
+        weight: document.getElementById('p-weight').value,
         symptoms: document.getElementById('p-symptoms').value || 'None',
         fee: document.getElementById('p-fee').value,
         visitCount: matchingCount + 1,
@@ -236,6 +238,7 @@ document.getElementById('rx-form').addEventListener('submit', async (e) => {
     
     document.getElementById('out-phone').textContent = pendingFormData.phone;
     document.getElementById('out-pid').textContent = pendingFormData.patientId;
+    document.getElementById('out-weight').textContent = pendingFormData.weight;
     document.getElementById('out-id').textContent = pendingFormData.appointmentId;
     document.getElementById('out-visit').textContent = pendingFormData.visitCount;
     document.getElementById('out-symptoms').textContent = pendingFormData.symptoms;
@@ -282,6 +285,7 @@ async function confirmAndSaveRx() {
          'Patient ID': pendingFormData.patientId,
          'Name': pendingFormData.name,
          'Phone': pendingFormData.phone,
+         'Weight': pendingFormData.weight,
          'Visit Count': pendingFormData.visitCount,
          'Fee': pendingFormData.fee,
          'Valid Till': pendingFormData.validTill
@@ -299,6 +303,7 @@ function resetForm() {
     document.getElementById('rx-form').reset();
     document.getElementById('status-message').style.display = 'none';
     document.getElementById('p-fee').value = 500;
+    document.getElementById('p-weight').value = '';
     document.getElementById('print-template').style.display = 'none';
     document.querySelector('.prescription-form-container').style.display = 'block';
 }
@@ -332,6 +337,7 @@ document.getElementById('btn-search').addEventListener('click', () => {
         const rPid = r.patientId || r['Patient ID'] || '-';
         const rName = r.name || r['Name'];
         const rPhone = r.phone || r['Phone'];
+        const rWt = r.weight || r['Weight'] || '-';
         const rTime = r['Timestamp'] ? new Date(r['Timestamp']).toLocaleDateString('en-GB') : '-';
         const rValid = r.validTill || r['Valid Till'];
 
@@ -344,6 +350,7 @@ document.getElementById('btn-search').addEventListener('click', () => {
             <td>${rPid}</td>
             <td>${rName}</td>
             <td>${rPhone}</td>
+            <td>${rWt}</td>
             <td style="text-align:center;"><span style="background:var(--blue-100);color:var(--blue-600);padding:2px 8px;border-radius:12px;font-size:0.8rem;font-weight:600;">${dynamicVisitCount}</span></td>
             <td>${rTime}</td>
             <td>${rValid}</td>
@@ -402,6 +409,7 @@ function renderPatientList(filter) {
         const rPid = r.patientId || r['Patient ID'] || '-';
         const rName = r.name || r['Name'];
         const rPhone = r.phone || r['Phone'];
+        const rWt = r.weight || r['Weight'] || '-';
         const rTime = r['Timestamp'] ? new Date(r['Timestamp']).toLocaleDateString('en-GB') : '-';
         
         const allTime = globalRecords.filter(x => (x.phone || x['Phone']) == rPhone).sort((a,b) => new Date(a['Timestamp']) - new Date(b['Timestamp']));
@@ -413,6 +421,7 @@ function renderPatientList(filter) {
             <td>${rPid}</td>
             <td>${rName}</td>
             <td>${rPhone}</td>
+            <td>${rWt}</td>
             <td style="text-align:center;"><span style="background:var(--blue-100);color:var(--blue-600);padding:2px 8px;border-radius:12px;font-size:0.8rem;font-weight:600;">${dynamicVisitCount}</span></td>
             <td>${rTime}</td>
             <td>
@@ -446,6 +455,7 @@ function printSlip(apptId) {
     
     document.getElementById('out-phone').textContent = r.phone || r['Phone'];
     document.getElementById('out-pid').textContent = r.patientId || r['Patient ID'] || '-';
+    document.getElementById('out-weight').textContent = r.weight || r['Weight'] || '-';
     document.getElementById('out-id').textContent = r.appointmentId || r['Appointment ID'];
     
     const rPhoneForPrint = r.phone || r['Phone'];
