@@ -1,5 +1,139 @@
 /* app.js */
+
+/* Auth Logic */
+const validHashes = [
+    { u: '0019cdce219b13c9', p: '00029e9e1a3dbc2f' }, 
+    { u: '000a25f017a9e9f5', p: '0010d2e339e1455a' }, 
+    { u: '000ff39d654dc659', p: '0004aced63eed807' }  
+];
+
+function _authHash(str) {
+    let h1 = 0xdeadbeef ^ str.length, h2 = 0x41c6ce57 ^ str.length;
+    for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1>>>0)).toString(16).padStart(16, '0');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Session Persistence Check
+    const savedToken = localStorage.getItem('magnum_auth_token');
+    if (savedToken) {
+        const [uHash, pHash] = savedToken.split(':');
+        const isValid = validHashes.some(cred => cred.u === uHash && cred.p === pHash);
+        if (isValid) {
+            document.getElementById('login-overlay').style.display = 'none';
+            const mainApp = document.getElementById('main-app');
+            mainApp.classList.remove('locked');
+            mainApp.style.display = 'flex';
+        } else {
+            localStorage.removeItem('magnum_auth_token');
+        }
+    }
+
+    // 2. Login Form Logic
+    const loginForm = document.getElementById('login-form');
+    if(loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const uInput = document.getElementById('login-username').value;
+            const pInput = document.getElementById('login-password').value;
+            const errDiv = document.getElementById('login-error');
+            
+            const uHash = _authHash(uInput);
+            const pHash = _authHash(pInput);
+            
+            const isValid = validHashes.some(cred => cred.u === uHash && cred.p === pHash);
+            
+            if(isValid) {
+                localStorage.setItem('magnum_auth_token', uHash + ':' + pHash);
+                document.getElementById('login-overlay').style.display = 'none';
+                const mainApp = document.getElementById('main-app');
+                mainApp.classList.remove('locked');
+                mainApp.style.display = 'flex';
+            } else {
+                errDiv.style.display = 'block';
+            }
+        });
+    }
+
+    // 3. Logout Logic
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            localStorage.removeItem('magnum_auth_token');
+            location.reload();
+        });
+    }
+});
+
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzP9G_wCTsuLTsfj4OHPmGt5-HyIxnk4jC2FkMrsNnZ37zpn8HvYoWSdGpuBoANB9M/exec';
+
+/* Offline Sync Logic */
+function showToast(msg, type='info') {
+    const toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '5px';
+    toast.style.color = '#fff';
+    toast.style.zIndex = '10000';
+    toast.style.fontWeight = '500';
+    toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+    if(type === 'warning') toast.style.backgroundColor = '#f59e0b';
+    else if(type === 'success') toast.style.backgroundColor = '#10b981';
+    else toast.style.backgroundColor = '#3b82f6';
+    
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
+
+function queueForSync(data) {
+    let queue = JSON.parse(localStorage.getItem('magnum_offline_sync') || '[]');
+    queue.push(data);
+    localStorage.setItem('magnum_offline_sync', JSON.stringify(queue));
+}
+
+async function processOfflineQueue() {
+    if (!navigator.onLine) return;
+    let queue = JSON.parse(localStorage.getItem('magnum_offline_sync') || '[]');
+    if(queue.length === 0) return;
+    
+    const remaining = [];
+    let successCount = 0;
+    
+    for(let i=0; i<queue.length; i++) {
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(queue[i]),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                mode: 'no-cors'
+            });
+            successCount++;
+        } catch(e) {
+            remaining.push(queue[i]);
+        }
+    }
+    
+    if(successCount > 0) {
+        showToast(`Connection restored! Synchronized ${successCount} offline prescriptions.`, "success");
+    }
+    
+    localStorage.setItem('magnum_offline_sync', JSON.stringify(remaining));
+}
+
+window.addEventListener('online', processOfflineQueue);
 
 /* Navigation Logic */
 const navItems = document.querySelectorAll('.nav-item');
@@ -72,18 +206,46 @@ let globalRecords = [];
 let dataLoaded = false;
 
 async function loadDashboardData() {
-    if(dataLoaded) {
-        updateDashboardCards();
-        return;
-    }
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
-        const data = await response.json();
-        globalRecords = data || [];
+    let offlineData = JSON.parse(localStorage.getItem('magnum_offline_sync') || '[]');
+    let cachedData = JSON.parse(localStorage.getItem('magnum_data_cache') || 'null');
+
+    // 1. SWR: Instant load from cache
+    if (cachedData) {
+        globalRecords = cachedData.concat(offlineData);
         dataLoaded = true;
         updateDashboardCards();
+    }
+
+    if (dataLoaded && !navigator.onLine) {
+        return; 
+    }
+    
+    // 2. Background Revalidation (Network Fetch)
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const data = await response.json() || [];
+        
+        localStorage.setItem('magnum_data_cache', JSON.stringify(data));
+        
+        globalRecords = data.concat(offlineData);
+        dataLoaded = true;
+        
+        updateDashboardCards();
+        
+        // Hot-swap active list views if needed
+        const activeSection = document.querySelector('.page-section:not(.hidden)');
+        if(activeSection && activeSection.id === 'patient-list') {
+            const activeFilter = document.querySelector('.filter-btn.btn-primary');
+            if(activeFilter) renderPatientList(activeFilter.getAttribute('data-filter'));
+        }
     } catch(err) {
-        console.error("Error loading dashboard data:", err);
+        console.warn("SWR Background Fetch failed:", err);
+        if (!cachedData) {
+            globalRecords = offlineData;
+            dataLoaded = true;
+            updateDashboardCards();
+            showToast("You are offline. Showing cached data only.", "warning");
+        }
     }
 }
 
@@ -181,14 +343,14 @@ document.getElementById('p-phone').addEventListener('blur', (e) => {
                 statusMsg.innerHTML = `<i class="ph ph-check-circle"></i> <strong>Returning Patient (Visit #${matching.length + 1}):</strong> Previous prescription is still valid (5 days). Fee waived.`;
                 statusMsg.style.display = 'block';
             } else {
-                feeInput.value = 500;
+                feeInput.value = 300;
                 statusMsg.className = 'status-message status-success';
                 statusMsg.innerHTML = `<i class="ph ph-info"></i> <strong>Returning Patient (Visit #${matching.length + 1}):</strong> Details auto-filled. Previous prescription expired. Standard fee applies.`;
                 statusMsg.style.display = 'block';
             }
         } else {
             document.getElementById('status-message').style.display = 'none';
-            document.getElementById('p-fee').value = 500;
+            document.getElementById('p-fee').value = 300;
         }
     }
 });
@@ -261,6 +423,9 @@ async function confirmAndSaveRx() {
     submitBtn.disabled = true;
 
     try {
+        if (!navigator.onLine) {
+            throw new Error("Offline");
+        }
         await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(pendingFormData),
@@ -268,7 +433,9 @@ async function confirmAndSaveRx() {
             mode: 'no-cors'
         });
     } catch(err) {
-        console.warn("Fetch threw an error, usually harmless local CORS.", err);
+        console.warn("Network offline or fetch failed, queueing offline...", err);
+        queueForSync(pendingFormData);
+        showToast("Saved Offline. Will sync when connection is restored.", "warning");
     }
     
     document.getElementById('rx-form').reset();
