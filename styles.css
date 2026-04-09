@@ -545,28 +545,28 @@ body {
 
 #print-name {
     top: 15.1%;
-    left: 10.5%;
+    left: 14%;
     width: 40%;
 }
 
 #print-age {
     top: 15.3%;
-    left: 64%;
+    left: 66%;
 }
 
 #print-gender {
     top: 15.3%;
-    left: 75%;
+    left: 77%;
 }
 
 #print-date {
     top: 15.3%;
-    left: 86%;
+    left: 89%;
 }
 
 .print-content {
     position: absolute;
-    top: 20%;
+    top: 18%;
     left: 6%;
     width: 88%;
     height: 60%;
@@ -706,6 +706,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
