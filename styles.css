@@ -539,35 +539,35 @@ body {
 /* Coordinates corresponding to the dotted lines on pre.jpeg */
 .print-field {
     position: absolute;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 400;
 }
 
 #print-name {
-    top: 15.3%;
+    top: 16.5%;
     left: 10.5%;
     width: 40%;
 }
 
 #print-age {
-    top: 15.3%;
+    top: 16.7%;
     left: 64%;
 }
 
 #print-gender {
-    top: 15.3%;
+    top: 16.7%;
     left: 74%;
 }
 
 #print-date {
-    top: 15.3%;
-    left: 85%;
+    top: 16.7%;
+    left: 86.5%;
 }
 
 .print-content {
     position: absolute;
-    top: 19%;
-    left: 4.5%;
+    top: 20.4%;
+    left: 1%;
     width: 88%;
     height: 60%;
 }
@@ -599,6 +599,12 @@ body {
         display: none !important;
     }
 
+    .app-container {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+
     .main-content {
         overflow: visible;
         padding: 0;
@@ -610,8 +616,20 @@ body {
         max-width: 100%;
     }
 
+    .page-section.hidden {
+        display: none !important;
+    }
+
     .prescription-wrapper {
         display: block;
+    }
+
+    .prescription-form-container {
+        display: none !important;
+    }
+
+    .section-header {
+        display: none !important;
     }
 
     .printable-prescription {
@@ -620,7 +638,7 @@ body {
         box-shadow: none;
         width: 210mm;
         height: 297mm;
-        page-break-after: always;
+        overflow: hidden;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
@@ -631,8 +649,10 @@ body {
 
     @page {
         margin: 0;
+        size: A4;
     }
 }
+
 
 @keyframes spin {
     to {

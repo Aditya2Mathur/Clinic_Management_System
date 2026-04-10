@@ -402,7 +402,6 @@ document.getElementById('rx-form').addEventListener('submit', async (e) => {
     document.getElementById('out-pid').textContent = pendingFormData.patientId;
     document.getElementById('out-weight').textContent = pendingFormData.weight;
     document.getElementById('out-id').textContent = pendingFormData.appointmentId;
-    document.getElementById('out-visit').textContent = pendingFormData.visitCount;
     document.getElementById('out-symptoms').textContent = pendingFormData.symptoms;
     
     document.getElementById('preview-actions').style.display = 'block';
