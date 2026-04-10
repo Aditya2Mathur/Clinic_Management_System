@@ -628,7 +628,7 @@ function printSlip(apptId) {
     const rPhoneForPrint = r.phone || r['Phone'];
     const allVisits = globalRecords.filter(x => (x.phone || x['Phone']) == rPhoneForPrint).sort((a,b) => new Date(a['Timestamp']) - new Date(b['Timestamp']));
     const visitIdx = allVisits.findIndex(x => (x.appointmentId || x['Appointment ID']) === apptId);
-    document.getElementById('out-visit').textContent = visitIdx >= 0 ? visitIdx + 1 : 1;
+
     
     document.getElementById('out-symptoms').textContent = r.symptoms || r['Symptoms'];
 

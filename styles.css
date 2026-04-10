@@ -544,24 +544,24 @@ body {
 }
 
 #print-name {
-    top: 15.1%;
-    left: 14%;
+    top: 15.3%;
+    left: 10.5%;
     width: 40%;
 }
 
 #print-age {
     top: 15.3%;
-    left: 66%;
+    left: 64%;
 }
 
 #print-gender {
     top: 15.3%;
-    left: 77%;
+    left: 74%;
 }
 
 #print-date {
     top: 15.3%;
-    left: 89%;
+    left: 85%;
 }
 
 .print-content {
