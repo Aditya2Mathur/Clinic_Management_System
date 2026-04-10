@@ -566,8 +566,8 @@ body {
 
 .print-content {
     position: absolute;
-    top: 18%;
-    left: 6%;
+    top: 19%;
+    left: 4.5%;
     width: 88%;
     height: 60%;
 }
@@ -576,7 +576,7 @@ body {
     font-size: 0.95rem;
     color: #222;
     margin-bottom: 1rem;
-    border-bottom: 1px dashed #aaa;
+
     padding-bottom: 0.5rem;
 }
 
